@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="Portfolio overview report for the Wieden+Kennedy profitability portal demo.">
+  <meta property="og:title" content="Portfolio Overview - Wieden+Kennedy Profitability Portal">
+  <meta property="og:description" content="Executive profitability metrics across clients and offices.">
+  <meta property="og:type" content="website">
+  <title>Portfolio Overview - Wieden+Kennedy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23080808'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-size='18' font-family='Arial' font-weight='700' fill='white'%3EW%2BK%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+  <script src="assets/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#dashboard">Skip to dashboard</a>
+  <div class="demo-banner">Demo - fictitious client names - Tableau dashboards require login</div>
+
+  <nav class="site-nav" aria-label="Primary navigation">
+    <a class="site-nav__brand" href="index.html">
+      <span class="site-nav__mark">W+K</span>
+      <span>Profitability Portal</span>
+    </a>
+    <div class="site-nav__links" aria-label="Report navigation">
+      <a href="overview.html" aria-current="page">Overview</a>
+      <a href="revenue-analysis.html">Revenue</a>
+      <a href="office-profitability.html">Office</a>
+      <a href="gl-account-analysis.html">GL Account</a>
+      <a href="index.html#client-reports">Clients</a>
+    </div>
+    <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
+      <span class="theme-toggle__icon" aria-hidden="true"></span>
+      <span class="theme-toggle__text" data-theme-label>Dark</span>
+    </button>
+  </nav>
+
+  <main>
+    <header class="page-hero">
+      <div class="container page-hero__grid">
+        <div data-reveal>
+          <p class="eyebrow">Agency overview</p>
+          <h1>Portfolio Overview</h1>
+          <p class="page-hero__copy">High-level profitability metrics across clients and offices, framed for quick executive scanning before entering the Tableau view.</p>
+        </div>
+        <aside class="report-context" aria-label="Report context" data-reveal>
+          <dl>
+            <div>
+              <dt>Audience</dt>
+              <dd>Finance leadership, account leads</dd>
+            </div>
+            <div>
+              <dt>Cadence</dt>
+              <dd>Monthly close review</dd>
+            </div>
+            <div>
+              <dt>Focus</dt>
+              <dd>Margin, revenue, office mix</dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </header>
+
+    <nav class="subnav" aria-label="Page sections">
+      <div class="container subnav__inner">
+        <a href="#signals">Signals</a>
+        <a href="#dashboard">Dashboard</a>
+      </div>
+    </nav>
+
+    <section class="section section--compact" id="signals">
+      <div class="container">
+        <div class="signal-band" data-reveal>
+          <div class="signal">
+            <span class="signal__label">Portfolio revenue</span>
+            <strong class="signal__value" data-count="$18.4M">$18.4M</strong>
+            <span class="signal__note">Current reporting period</span>
+          </div>
+          <div class="signal">
+            <span class="signal__label">Gross margin</span>
+            <strong class="signal__value" data-count="14.2%">14.2%</strong>
+            <span class="signal__note">Blended across offices</span>
+          </div>
+          <div class="signal">
+            <span class="signal__label">Active clients</span>
+            <strong class="signal__value" data-count="42">42</strong>
+            <span class="signal__note">Included in dashboard</span>
+          </div>
+          <div class="signal">
+            <span class="signal__label">Review status</span>
+            <strong class="signal__value">Ready</strong>
+            <span class="signal__note">Tableau governed source</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="viz-section" id="dashboard">
+      <div class="container">
+        <div class="dashboard-frame" data-viz-frame data-reveal>
+          <div class="dashboard-frame__chrome">
+            <h2 class="dashboard-frame__title">Portfolio Overview Tableau view</h2>
+            <div class="dashboard-frame__meta" aria-label="Dashboard metadata">
+              <span class="pill">Embedded v3</span>
+              <span class="pill">Toolbar bottom</span>
+              <span class="pill">Login required</span>
+            </div>
+          </div>
+          <div class="dashboard-frame__body">
+            <div class="dashboard-skeleton" aria-hidden="true">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-grid">
+                <div class="skeleton-block"></div>
+                <div class="skeleton-block"></div>
+                <div class="skeleton-block"></div>
+              </div>
+              <div class="skeleton-block"></div>
+            </div>
+            <tableau-viz
+              src="https://prod-useast-a.online.tableau.com/t/wk/views/ProfitabilityReportV2/LPClientProfitabilitywoSidePanel"
+              width="100%" height="1040" hide-tabs toolbar="bottom">
+            </tableau-viz>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <span>Wieden+Kennedy finance demo</span>
+      <span>Portfolio Overview</span>
+    </div>
+  </footer>
+</body>
+</html>
