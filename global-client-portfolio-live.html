@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Global Client Portfolio Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script type="module" src="https://prod-useast-a.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"></script>
+<style>
+  :root {
+    --bg: #F2F1ED; --panel: #FCFCFA; --card: #F4F4F2; --band: #F8F8F5;
+    --ink: #111111; --ink2: #4F4F4A; --ink3: #7B7B74; --line: #DDDDDA; --line2: #C9C9C3;
+    --good: #146B3A; --bad: #C0392B; --good-dark: #4ADE80; --bad-dark: #FF6B5F;
+    --py: #7B7B74; --cy: #111111;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Archivo", system-ui, sans-serif; font-size: 14px; line-height: 1.45; }
+  .shell { background: #0A0A0A; color: #fff; padding: 20px 24px 18px; }
+  .shell .brand-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #B7B7B2; }
+  .shell h1 { font-size: 30px; font-weight: 800; line-height: 1.15; margin: 4px 0 0; }
+  .shell h1 span { font-size: 18px; font-weight: 500; color: #B7B7B2; margin-left: 10px; }
+  .sync { display: inline-flex; align-items: center; gap: 9px; margin-top: 12px; padding: 6px 14px 6px 12px; border: 1px solid #3A3A3A; border-radius: 999px; background: #1C1C1C; font-weight: 600; font-size: 14px; color: #FFFFFF; cursor: default; }
+  .sync .dot { width: 10px; height: 10px; border-radius: 50%; background: #A6A6A0; flex: none; }
+  .sync.loading .dot, .sync.updating .dot { background: #FF6B5F; animation: pulse .8s ease-in-out infinite; }
+  .sync.loading, .sync.updating { border-color: #FF6B5F; }
+  .sync.ready .dot { background: #4ADE80; }
+  .sync.error .dot { background: #FF6B5F; }
+  .sync.error { color: #FF6B5F; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+
+  body.is-loading .kpi .v, body.is-loading .kpi .row span { color: transparent !important; background: #E7E8E6; border-radius: 2px; }
+  body.is-loading .kpi .v { width: 62%; }
+  body.is-loading .kpi.dark .v, body.is-loading .kpi.dark .row span { background: #2A2A2A; }
+  body.is-loading .kpi .row span { min-width: 70px; min-height: 16px; display: inline-block; }
+  body.is-updating .kpis, body.is-updating #chart { opacity: .45; transition: opacity .15s; }
+  .chart-skel { display: none; height: 280px; margin-top: 6px; background: repeating-linear-gradient(90deg, #EFEFEB 0 36px, transparent 36px 58px) bottom / 100% 70% no-repeat; }
+  body.is-loading .chart-skel { display: block; }
+  body.is-loading #chart { display: none; }
+  main { max-width: 1480px; margin: 0 auto; padding: 0 0 48px; }
+
+  .filters { background: var(--panel); display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 16px 12px 28px; }
+  .filters label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; color: var(--ink2); margin-bottom: 3px; letter-spacing: .02em; }
+  .filters select { width: 100%; font: inherit; font-size: 13px; padding: 3px 6px; border: 1px solid var(--ink); background: #fff; border-radius: 0; }
+  .filters select:disabled { color: var(--ink3); border-color: var(--line2); }
+  .filters select:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .caption { font-size: 12.5px; color: var(--ink2); padding: 14px 12px 10px; }
+  .caption b { color: var(--ink); }
+  .empty-state { margin: 0 0 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); color: var(--ink2); }
+
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .kpi { background: var(--panel); padding: 22px 16px 16px; min-height: 158px; border: 1px solid var(--line); }
+  .kpi .k { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); }
+  .kpi .v { font-size: 46px; font-weight: 800; line-height: 1.1; margin: 10px 0 14px; letter-spacing: -.01em; }
+  .kpi .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 700; }
+  .kpi .py small { font-size: 12px; font-weight: 500; margin-right: 6px; color: var(--ink2); }
+  .kpi.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .kpi.dark .k { color: #fff; }
+  .kpi.dark .py small { color: #B7B7B2; }
+  .delta.pos { color: var(--good); } .delta.neg { color: var(--bad); }
+  .kpi.dark .delta.pos { color: var(--good-dark); } .kpi.dark .delta.neg { color: var(--bad-dark); }
+  .delta.na { color: var(--ink3); }
+
+  h2 { font-size: 30px; font-weight: 800; margin: 26px 12px 2px; }
+  .h2sub { font-size: 12.5px; color: var(--ink2); margin: 0 12px 10px; }
+  .h2sub b { color: var(--ink); }
+  .panel { background: var(--panel); border: 1px solid var(--line); padding: 18px 14px 12px; }
+  .panel h3 { font-size: 16px; margin: 0; font-weight: 700; }
+  .panel .sub { font-size: 12.5px; color: var(--ink2); margin: 2px 0 8px; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink2); margin-bottom: 4px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; }
+  #chart { width: 100%; height: auto; display: block; }
+
+  .status { font-size: 12px; color: var(--ink3); margin: 14px 12px 0; }
+  .status.err { color: var(--bad); font-weight: 600; }
+  .source { margin-top: 34px; }
+  .source .note { font-size: 12.5px; color: var(--ink2); margin: 0 12px 8px; }
+
+  @media (max-width: 900px) {
+    .filters { grid-template-columns: 1fr 1fr; }
+    .kpis { grid-template-columns: 1fr; }
+    .kpi .v { font-size: 38px; }
+    h2 { font-size: 24px; }
+  }
+</style>
+</head>
+<body class="is-loading">
+<div class="shell">
+  <div class="brand-label">Wieden+Kennedy</div>
+  <h1>Global Client Portfolio<span>Live demo · Revenue and contribution only</span></h1>
+  <div class="sync loading" id="sync" role="status" aria-live="polite"><span class="dot"></span><span id="sync-text">Loading data…</span></div>
+</div>
+<main>
+  <section class="filters">
+    <div><label for="f-year">Accounting Year</label><select id="f-year" disabled></select></div>
+    <div><label for="f-country">Country</label><select id="f-country" disabled><option>(All)</option></select></div>
+    <div><label for="f-client">Reporting Client</label><select id="f-client" disabled><option>(All)</option></select></div>
+    <div><label for="f-office">Office</label><select id="f-office" disabled><option>(All)</option></select></div>
+  </section>
+
+  <p class="caption"><b>YTD</b> actuals through <b id="period-label">the latest available month</b>, compared to the <b>same period a year earlier</b>. Currency: <b>USD</b>. Profit measures are outside this demo.</p>
+  <p class="empty-state" id="empty-state" hidden>No data for this selection.</p>
+
+  <section class="kpis">
+    <div class="kpi dark" id="k-rev"><div class="k">Revenue</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
+    <div class="kpi" id="k-dc"><div class="k">Direct Contribution</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
+    <div class="kpi" id="k-cm"><div class="k">Contribution Margin</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
+  </section>
+
+  <h2>Revenue Trends</h2>
+  <p class="h2sub">Monthly <b>revenue by year</b>.</p>
+  <div class="panel">
+    <h3>Revenue by Month and Year</h3>
+    <p class="sub">The current year runs through <b id="chart-cutoff">the latest available month</b>; prior year shows <b>all months</b>. Currency: USD.</p>
+    <div class="legend"><span><i style="background:var(--py)"></i><span id="lg-py">Prior year</span></span><span><i style="background:var(--cy)"></i><span id="lg-cy">Current year</span></span></div>
+    <div class="chart-skel"></div>
+    <svg id="chart" viewBox="0 0 1200 330" role="img" aria-label="Revenue by month and year"></svg>
+  </div>
+
+  <p class="status err" id="status" hidden></p>
+
+  <section class="source">
+    <h2 style="font-size:18px">Data source</h2>
+    <p class="note">The Tableau view below feeds everything above. The page reads its data through the Tableau Embedding API and draws the report itself; filters are applied by Tableau.</p>
+    <tableau-viz id="viz"
+      src="https://prod-useast-a.online.tableau.com/t/wk/views/TESTEmbeddingAPIData/Data_MonthlyPL"
+      width="100%" height="420" toolbar="hidden" hide-tabs iframe-attr-loading="eager">
+    </tableau-viz>
+  </section>
+</main>
+
+<script type="module">
+  const viz = document.getElementById("viz");
+  const statusEl = document.getElementById("status");
+  const yearSel = document.getElementById("f-year");
+  const FILTERS = [
+    { id: "f-client", match: /reportingclient/i },
+    { id: "f-office", match: /parent\s*office/i },
+    { id: "f-country", match: /country/i },
+  ];
+  const ALL = "__all__";
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const MONTH_WORDS = {
+    january:1, jan:1, enero:1, ene:1, february:2, feb:2, febrero:2, march:3, mar:3, marzo:3,
+    april:4, apr:4, abril:4, abr:4, may:5, mayo:5, june:6, jun:6, junio:6, july:7, jul:7, julio:7,
+    august:8, aug:8, agosto:8, ago:8, september:9, sep:9, sept:9, septiembre:9, setiembre:9,
+    october:10, oct:10, octubre:10, november:11, nov:11, noviembre:11, december:12, dec:12, diciembre:12, dic:12
+  };
+
+  let records = new Map();
+  let reading = false, rerun = false, timer = null;
+
+  const syncEl = document.getElementById("sync");
+  const syncText = document.getElementById("sync-text");
+  let loaded = false;
+  let lastSync = "";
+
+  function setState(state, text, detail) {
+    syncEl.className = "sync " + state;
+    syncText.textContent = text;
+    syncEl.title = detail || "";
+    if (state === "ready" || state === "error") document.body.classList.remove("is-loading");
+    document.body.classList.toggle("is-updating", state === "updating");
+    statusEl.hidden = state !== "error";
+    statusEl.textContent = state === "error" ? detail || text : "";
+  }
+  function busyState() { return loaded ? ["updating", "Updating…"] : ["loading", "Loading data…"]; }
+  function errText(e) { return e && e.message ? e.message : String(e); }
+  function sheet() {
+    const s = viz.workbook.activeSheet;
+    return s.sheetType === "worksheet" ? s : (s.worksheets && s.worksheets[0]) || null;
+  }
+
+  // ---------- data shape ----------
+  function toNum(v) {
+    if (typeof v === "number") return v;
+    if (typeof v === "string" && v.trim() !== "" && !isNaN(Number(v))) return Number(v);
+    return null;
+  }
+  function monthOf(cell) {
+    const n = toNum(cell.value);
+    if (n !== null && Number.isInteger(n) && n >= 1 && n <= 12) return n;
+    for (const s of [cell.value, cell.formattedValue]) {
+      if (typeof s === "string") {
+        const m = MONTH_WORDS[s.trim().toLowerCase().replace(/\./g, "")];
+        if (m) return m;
+      }
+    }
+    return null;
+  }
+  function kind(name) {
+    const s = String(name || "");
+    if (/gross\s*profit/i.test(s)) return "gp";
+    if (/revenue/i.test(s)) return "rev";
+    return null;
+  }
+
+  function parse(table) {
+    const cols = table.columns, rows = table.data;
+    if (!rows.length) return new Map();
+    const names = cols.map(c => c.fieldName.trim());
+    const mn = names.findIndex(n => /^(measure names|nombres de medidas)$/i.test(n));
+    const mv = names.findIndex(n => /^(measure values|valores de medidas)$/i.test(n));
+    let yi = -1, mi = -1;
+    cols.forEach((c, i) => {
+      if (yi >= 0 || i === mn || i === mv || !rows.length) return;
+      if (rows.every(r => { const n = toNum(r[i].value); return n !== null && n >= 1900 && n <= 2100; })) yi = i;
+    });
+    cols.forEach((c, i) => {
+      if (mi >= 0 || i === mn || i === mv || i === yi || !rows.length) return;
+      if (rows.every(r => monthOf(r[i]) !== null)) mi = i;
+    });
+    if (yi < 0 || mi < 0) throw new Error("Unexpected data shape. Columns: " + names.join(" · "));
+
+    const out = new Map();
+    const rec = (y, m) => { const k = y * 100 + m; if (!out.has(k)) out.set(k, { y, m, rev: null, gp: null }); return out.get(k); };
+    const add = (r, k, v) => { if (v !== null) r[k] = (r[k] || 0) + v; };
+
+    if (mn >= 0 && mv >= 0) {
+      rows.forEach(r => {
+        const k = kind(r[mn].value) || kind(r[mn].formattedValue);
+        if (k) add(rec(toNum(r[yi].value), monthOf(r[mi])), k, toNum(r[mv].value));
+      });
+    } else {
+      const ms = cols.map((c, i) => ({ i, k: kind(c.fieldName) })).filter(x => x.k && x.i !== yi && x.i !== mi);
+      if (!ms.length) throw new Error("No Revenue/GrossProfit columns found. Columns: " + names.join(" · "));
+      rows.forEach(r => {
+        const x = rec(toNum(r[yi].value), monthOf(r[mi]));
+        ms.forEach(({ i, k }) => add(x, k, toNum(r[i].value)));
+      });
+    }
+    return out;
+  }
+
+  // ---------- reading ----------
+  function refresh() { clearTimeout(timer); timer = setTimeout(readNow, 120); }
+
+  async function readNow() {
+    if (reading) { rerun = true; return; }
+    reading = true;
+    setState(...busyState());
+    let reader;
+    try {
+      const t0 = performance.now();
+      reader = await sheet().getSummaryDataReaderAsync();
+      const table = await reader.getAllPagesAsync();
+      const ms = Math.round(performance.now() - t0);
+      records = parse(table);
+      fillYears();
+      render();
+      loaded = true;
+      lastSync = new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+      setState("ready", "Ready · Read from Tableau at " + lastSync,
+        table.data.length + " rows read in " + ms + " ms");
+    } catch (e) {
+      setState("error", "Error", "Could not read data from Tableau: " + errText(e));
+    } finally {
+      if (reader) { try { await reader.releaseAsync(); } catch (_) {} }
+      reading = false;
+      if (rerun) { rerun = false; refresh(); }
+    }
+  }
+
+  // ---------- filters ----------
+  function fillYears() {
+    const years = [...new Set([...records.values()].filter(r => r.rev !== null).map(r => r.y))].sort((a, b) => b - a);
+    const prev = yearSel.value;
+    yearSel.replaceChildren();
+    years.forEach(y => { const o = document.createElement("option"); o.value = y; o.textContent = y; yearSel.appendChild(o); });
+    if (prev && years.includes(Number(prev))) yearSel.value = prev;
+    yearSel.disabled = years.length === 0;
+  }
+  yearSel.addEventListener("change", render);
+
+  async function initFilters() {
+    let list = [];
+    try { list = await sheet().getFiltersAsync(); } catch (_) {}
+    for (const def of FILTERS) {
+      const sel = document.getElementById(def.id);
+      const f = list.find(x => def.match.test(x.fieldName) && x.filterType === "categorical");
+      if (!f) { sel.title = "Filter not found on the Tableau sheet"; continue; }
+      try {
+        const domain = await f.getDomainAsync("relevant");
+        const vals = domain.values
+          .map(v => ({ value: v.value, label: v.formattedValue }))
+          .filter(v => v.label !== null && v.label !== undefined && String(v.label).trim() !== "")
+          .sort((a, b) => String(a.label).localeCompare(String(b.label)));
+        sel.replaceChildren();
+        const all = document.createElement("option"); all.value = ALL; all.textContent = "(All)"; sel.appendChild(all);
+        vals.forEach(v => { const o = document.createElement("option"); o.value = String(v.value); o.textContent = v.label; sel.appendChild(o); });
+        sel.dataset.field = f.fieldName;
+        sel.disabled = false;
+        sel.addEventListener("change", () => applyFilter(sel));
+      } catch (e) {
+        sel.title = "Could not load values: " + errText(e);
+      }
+    }
+  }
+
+  async function applyFilter(sel) {
+    const selects = FILTERS.map(d => document.getElementById(d.id));
+    selects.forEach(s => s.disabled = true);
+    setState("updating", "Updating…");
+    try {
+      if (sel.value === ALL) await sheet().applyFilterAsync(sel.dataset.field, [], "all");
+      else await sheet().applyFilterAsync(sel.dataset.field, [sel.value], "replace");
+      refresh();
+    } catch (e) {
+      setState("error", "Error", "Could not apply the filter in Tableau: " + errText(e));
+    } finally {
+      selects.forEach(s => { if (s.dataset.field) s.disabled = false; });
+    }
+  }
+
+  // ---------- KPIs ----------
+  function fmtMoney(v) {
+    if (v === null || !isFinite(v)) return "—";
+    const a = Math.abs(v), sign = v < 0 ? "-" : "";
+    if (a >= 1e9) return sign + "$" + (a / 1e9).toFixed(1) + "B";
+    if (a >= 1e6) return sign + "$" + (a / 1e6).toFixed(1) + "M";
+    if (a >= 1e3) return sign + "$" + (a / 1e3).toFixed(1) + "K";
+    return sign + "$" + a.toFixed(0);
+  }
+  function fmtPct(v) { return v === null || !isFinite(v) ? "—" : (v * 100).toFixed(1) + "%"; }
+
+  function sums(year, cutoff) {
+    let rev = 0, gp = 0, any = false;
+    for (const r of records.values()) {
+      if (r.y === year && r.m <= cutoff) { rev += r.rev || 0; gp += r.gp || 0; any = any || r.rev !== null; }
+    }
+    return any ? { rev, gp, cm: rev ? gp / rev : null } : null;
+  }
+
+  function setKpi(id, value, pyYear, pyValue, delta, deltaText) {
+    const el = document.getElementById(id);
+    el.querySelector(".v").textContent = value;
+    el.querySelector(".py small").textContent = pyYear;
+    el.querySelector(".py span").textContent = pyValue;
+    const d = el.querySelector(".delta");
+    d.textContent = deltaText;
+    d.className = "delta " + (delta === null ? "na" : delta >= 0 ? "pos" : "neg");
+  }
+  function pctDelta(cy, py) { return py ? (cy - py) / Math.abs(py) : null; }
+  function signed(v, digits, suffix) { return (v >= 0 ? "+" : "") + v.toFixed(digits) + suffix; }
+
+  function render() {
+    const cyYear = Number(yearSel.value);
+    document.getElementById("empty-state").hidden = !!cyYear;
+    if (!cyYear) {
+      for (const id of ["k-rev", "k-dc", "k-cm"]) setKpi(id, "—", "", "", null, "n/a");
+      document.getElementById("period-label").textContent = "the latest available month";
+      document.getElementById("chart-cutoff").textContent = "the latest available month";
+      document.getElementById("chart").replaceChildren();
+      return;
+    }
+    const cyMonths = [...records.values()].filter(r => r.y === cyYear && r.rev !== null).map(r => r.m);
+    const cutoff = cyMonths.length ? Math.max(...cyMonths) : 12;
+    const cutoffLabel = cyMonths.length ? MONTHS[cutoff - 1] + " " + cyYear : "the latest available month";
+    document.getElementById("period-label").textContent = cutoffLabel;
+    document.getElementById("chart-cutoff").textContent = cutoffLabel;
+    const pyYear = cyYear - 1;
+    const cy = sums(cyYear, cutoff), py = sums(pyYear, cutoff);
+
+    const dRev = cy && py ? pctDelta(cy.rev, py.rev) : null;
+    const dGp = cy && py ? pctDelta(cy.gp, py.gp) : null;
+    const dCm = cy && py && cy.cm !== null && py.cm !== null ? (cy.cm - py.cm) * 10000 : null;
+
+    setKpi("k-rev", fmtMoney(cy ? cy.rev : null), py ? pyYear : "", py ? fmtMoney(py.rev) : "", dRev, dRev === null ? "n/a" : signed(dRev * 100, 1, "%"));
+    setKpi("k-dc", fmtMoney(cy ? cy.gp : null), py ? pyYear : "", py ? fmtMoney(py.gp) : "", dGp, dGp === null ? "n/a" : signed(dGp * 100, 1, "%"));
+    setKpi("k-cm", fmtPct(cy ? cy.cm : null), py ? pyYear : "", py ? fmtPct(py.cm) : "", dCm, dCm === null ? "n/a" : signed(dCm, 0, " bps"));
+
+    document.getElementById("lg-py").textContent = pyYear;
+    document.getElementById("lg-cy").textContent = cyYear;
+    drawChart(cyYear, pyYear, cutoff);
+  }
+
+  // ---------- chart ----------
+  const NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, text) {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (text !== undefined) n.textContent = text;
+    return n;
+  }
+  function niceStep(max) {
+    const raw = max / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), f = raw / p;
+    return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
+  }
+
+  function drawChart(cyYear, pyYear, cutoff) {
+    const svg = document.getElementById("chart");
+    svg.replaceChildren();
+    const W = 1200, H = 330, L = 64, R = 8, T = 30, B = 12;
+    const pw = W - L - R, ph = H - T - B, gw = pw / 12;
+    const get = (y, m) => { const r = records.get(y * 100 + m); return r && r.rev !== null ? r.rev : null; };
+    const vals = [];
+    for (let m = 1; m <= 12; m++) { const a = get(pyYear, m), b = m <= cutoff ? get(cyYear, m) : null; if (a !== null) vals.push(a); if (b !== null) vals.push(b); }
+    const max = Math.max(0, ...vals);
+    const step = max > 0 ? niceStep(max) : 1;
+    const top = max > 0 ? Math.ceil(max / step) * step : 1;
+    const y = v => T + ph - (Math.max(0, v) / top) * ph;
+
+    for (let t = 0; t <= top + 1e-9; t += step) {
+      svg.appendChild(el("text", { x: L - 10, y: y(t) + 4, "text-anchor": "end", "font-size": 12, fill: "#7B7B74" }, fmtMoney(t)));
+    }
+    for (let m = 1; m <= 12; m++) {
+      const gx = L + (m - 1) * gw;
+      if (m > 1) svg.appendChild(el("line", { x1: gx, x2: gx, y1: T - 22, y2: T + ph, stroke: "#DDDDDA", "stroke-width": 1 }));
+      svg.appendChild(el("text", { x: gx + gw / 2, y: T - 12, "text-anchor": "middle", "font-size": 13, "font-weight": 600, fill: "#111111" }, MONTHS[m - 1]));
+      const bw = gw * 0.27;
+      const bars = [[pyYear, get(pyYear, m), gx + gw * 0.17, "#7B7B74"], [cyYear, m <= cutoff ? get(cyYear, m) : null, gx + gw * 0.56, "#111111"]];
+      for (const [yr, v, x, c] of bars) {
+        if (v === null) continue;
+        const r = el("rect", { x, y: y(v), width: bw, height: Math.max(0, T + ph - y(v)), fill: c });
+        r.appendChild(el("title", {}, MONTHS[m - 1] + " " + yr + ": " + fmtMoney(v)));
+        svg.appendChild(r);
+      }
+    }
+    svg.appendChild(el("line", { x1: L, x2: W - R, y1: T + ph, y2: T + ph, stroke: "#C9C9C3", "stroke-width": 1 }));
+  }
+
+  // ---------- wiring ----------
+  viz.addEventListener("firstinteractive", async () => {
+    await initFilters();
+    refresh();
+  });
+  viz.addEventListener("filterchanged", refresh);
+  viz.addEventListener("vizloaderror", e => setState("error", "Error",
+    "Could not load the Tableau view: " + (e.detail && e.detail.message ? e.detail.message : "no detail")));
+</script>
+</body>
+</html>
