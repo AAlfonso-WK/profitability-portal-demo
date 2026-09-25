@@ -23,8 +23,12 @@
   .shell h1 span { font-size: 18px; font-weight: 500; color: #B7B7B2; margin-left: 10px; }
   .sync { display: inline-flex; align-items: center; gap: 9px; margin-top: 12px; padding: 6px 14px 6px 12px; border: 1px solid #3A3A3A; border-radius: 999px; background: #1C1C1C; font-weight: 600; font-size: 14px; color: #FFFFFF; cursor: default; }
   .sync .dot { width: 10px; height: 10px; border-radius: 50%; background: #A6A6A0; flex: none; }
-  .sync.loading .dot, .sync.updating .dot { background: #FF6B5F; animation: pulse .8s ease-in-out infinite; }
-  .sync.loading, .sync.updating { border-color: #FF6B5F; }
+  .sync.loading .dot, .sync.updating .dot, .sync.signin .dot { background: #FF6B5F; animation: pulse .8s ease-in-out infinite; }
+  .sync.loading, .sync.updating, .sync.signin { border-color: #FF6B5F; }
+  .signin { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px; margin-top: 12px; font-size: 14px; color: #E7E8E6; }
+  .signin[hidden] { display: none; }
+  .signin button { font: inherit; font-weight: 700; padding: 8px 16px; background: #FFFFFF; color: #111111; border: 0; border-radius: 3px; cursor: pointer; }
+  .signin button:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
   .sync.ready .dot { background: #4ADE80; }
   .sync.error .dot { background: #FF6B5F; }
   .sync.error { color: #FF6B5F; }
@@ -90,6 +94,10 @@
   <div class="brand-label">Wieden+Kennedy</div>
   <h1>Global Client Portfolio<span>Live demo · Revenue and contribution only</span></h1>
   <div class="sync loading" id="sync" role="status" aria-live="polite"><span class="dot"></span><span id="sync-text">Loading data…</span></div>
+  <div class="signin" id="signin" hidden>
+    <span>Tableau needs you to sign in before the report can load. The sign-in box is in the Tableau view at the bottom of the page.</span>
+    <button type="button" id="signin-btn">Sign in below ↓</button>
+  </div>
 </div>
 <main>
   <section class="filters">
@@ -120,7 +128,7 @@
 
   <p class="status err" id="status" hidden></p>
 
-  <section class="source">
+  <section class="source" id="source">
     <h2 style="font-size:18px">Data source</h2>
     <p class="note">The Tableau view below feeds everything above. The page reads its data through the Tableau Embedding API and draws the report itself; filters are applied by Tableau.</p>
     <tableau-viz id="viz"
@@ -421,7 +429,22 @@
   }
 
   // ---------- wiring ----------
+  const signinEl = document.getElementById("signin");
+  let interactive = false;
+  // Tableau shows its sign-in inside the embed; if it hasn't loaded after 5 s, point the viewer to it.
+  const signinTimer = setTimeout(() => {
+    if (interactive) return;
+    setState("signin", "Sign in to Tableau to load data");
+    signinEl.hidden = false;
+  }, 5000);
+  document.getElementById("signin-btn").addEventListener("click", () =>
+    document.getElementById("source").scrollIntoView({ behavior: "smooth", block: "start" }));
+
   viz.addEventListener("firstinteractive", async () => {
+    interactive = true;
+    clearTimeout(signinTimer);
+    signinEl.hidden = true;
+    if (!loaded) setState("loading", "Loading data…");
     await initFilters();
     refresh();
   });
