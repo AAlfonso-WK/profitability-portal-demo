@@ -53,10 +53,10 @@
   .caption b { color: var(--ink); }
   .empty-state { margin: 0 0 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); color: var(--ink2); }
 
-  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
   .kpi { background: var(--panel); padding: 22px 16px 16px; min-height: 158px; border: 1px solid var(--line); }
   .kpi .k { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); }
-  .kpi .v { font-size: 46px; font-weight: 800; line-height: 1.1; margin: 10px 0 14px; letter-spacing: -.01em; }
+  .kpi .v { font-size: 38px; font-weight: 800; line-height: 1.1; margin: 10px 0 14px; letter-spacing: -.01em; }
   .kpi .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 15px; font-weight: 700; }
   .kpi .py small { font-size: 12px; font-weight: 500; margin-right: 6px; color: var(--ink2); }
   .kpi.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
@@ -75,6 +75,31 @@
   .legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink2); margin-bottom: 4px; }
   .legend i { display: inline-block; width: 10px; height: 10px; margin-right: 5px; vertical-align: -1px; }
   #chart { width: 100%; height: auto; display: block; }
+  .chart-box { position: relative; }
+  #chart .bar { cursor: default; }
+  #chart .bar:hover { opacity: .8; }
+  .chart-tip { position: absolute; pointer-events: none; background: var(--ink); color: #fff; padding: 8px 12px; font-size: 12.5px; line-height: 1.4; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,.18); z-index: 2; }
+  .chart-tip[hidden] { display: none; }
+  .chart-tip .t { font-weight: 700; }
+  .chart-tip .v { font-size: 14px; font-weight: 600; }
+  .chart-tip .d.pos { color: var(--good-dark); } .chart-tip .d.neg { color: var(--bad-dark); }
+
+  .pl-wrap { overflow-x: auto; }
+  .pl { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .pl th { font-size: 11.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink2); text-align: right; padding: 14px 12px 12px; border-bottom: 1px solid var(--line2); white-space: nowrap; }
+  .pl th:first-child, .pl td:first-child { text-align: left; }
+  .pl td { text-align: right; padding: 8px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  .pl tr.total td { font-weight: 700; background: var(--band); border-bottom: 1px solid var(--line2); }
+  .pl tr.client td:first-child { font-weight: 600; }
+  .pl tr.office td { color: var(--ink2); background: #FAFAF7; font-size: 12.5px; }
+  .pl tr.office td:first-child { padding-left: 36px; }
+  .pl .tog { font: inherit; font-weight: 600; background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink); text-align: left; }
+  .pl .tog::before { content: "▸"; display: inline-block; width: 16px; color: var(--ink3); transition: transform .15s; }
+  .pl .tog[aria-expanded="true"]::before { transform: rotate(90deg); }
+  .pl .tog:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .pl .spacer { display: inline-block; width: 16px; }
+  body.is-updating .pl { opacity: .45; transition: opacity .15s; }
+  .pl-note { font-size: 12px; color: var(--ink2); margin: 10px 2px 0; }
 
   .status { font-size: 12px; color: var(--ink3); margin: 14px 12px 0; }
   .status.err { color: var(--bad); font-weight: 600; }
@@ -83,8 +108,8 @@
 
   @media (max-width: 900px) {
     .filters { grid-template-columns: 1fr 1fr; }
-    .kpis { grid-template-columns: 1fr; }
-    .kpi .v { font-size: 38px; }
+    .kpis { grid-template-columns: 1fr 1fr; }
+    .kpi .v { font-size: 34px; }
     h2 { font-size: 24px; }
   }
 </style>
@@ -92,7 +117,7 @@
 <body class="is-loading">
 <div class="shell">
   <div class="brand-label">Wieden+Kennedy</div>
-  <h1>Global Client Portfolio<span>Live demo · Revenue and contribution only</span></h1>
+  <h1>Global Client Portfolio<span>Live demo</span></h1>
   <div class="sync loading" id="sync" role="status" aria-live="polite"><span class="dot"></span><span id="sync-text">Loading data…</span></div>
   <div class="signin" id="signin" hidden>
     <span>Tableau needs you to sign in before the report can load. The sign-in box is in the Tableau view at the bottom of the page.</span>
@@ -107,13 +132,15 @@
     <div><label for="f-office">Office</label><select id="f-office" disabled><option>(All)</option></select></div>
   </section>
 
-  <p class="caption"><b>YTD</b> actuals through <b id="period-label">the latest available month</b>, compared to the <b>same period a year earlier</b>. Currency: <b>USD</b>. Profit measures are outside this demo.</p>
+  <p class="caption"><b>YTD</b> actuals through <b id="period-label">the latest available month</b>, compared to the <b>same period a year earlier</b>. Currency: <b>USD</b>.</p>
   <p class="empty-state" id="empty-state" hidden>No data for this selection.</p>
 
   <section class="kpis">
     <div class="kpi dark" id="k-rev"><div class="k">Revenue</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
     <div class="kpi" id="k-dc"><div class="k">Direct Contribution</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
     <div class="kpi" id="k-cm"><div class="k">Contribution Margin</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
+    <div class="kpi" id="k-pr"><div class="k">Profit</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
+    <div class="kpi" id="k-pp"><div class="k">Profit %</div><div class="v">—</div><div class="row"><span class="py"><small></small><span></span></span><span class="delta"></span></div></div>
   </section>
 
   <h2>Revenue Trends</h2>
@@ -123,7 +150,22 @@
     <p class="sub">The current year runs through <b id="chart-cutoff">the latest available month</b>; prior year shows <b>all months</b>. Currency: USD.</p>
     <div class="legend"><span><i style="background:var(--py)"></i><span id="lg-py">Prior year</span></span><span><i style="background:var(--cy)"></i><span id="lg-cy">Current year</span></span></div>
     <div class="chart-skel"></div>
-    <svg id="chart" viewBox="0 0 1200 330" role="img" aria-label="Revenue by month and year"></svg>
+    <div class="chart-box">
+      <svg id="chart" viewBox="0 0 1200 330" role="img" aria-label="Revenue by month and year"></svg>
+      <div class="chart-tip" id="chart-tip" hidden></div>
+    </div>
+  </div>
+
+  <h2>Detailed Client P&amp;L</h2>
+  <p class="h2sub">Full <b>revenue-to-profit breakdown</b> by client, <b>expandable to office level</b>. YTD through <b id="pl-cutoff">the latest available month</b>. Currency: <b>USD</b>.</p>
+  <div class="panel">
+    <div class="pl-wrap">
+      <table class="pl" id="pl">
+        <thead><tr><th>Client</th><th>Revenue</th><th>Direct Labour</th><th>Direct Overheads</th><th>Direct Contribution</th><th>Indirect Costs</th><th>Profit</th><th>Profit %</th></tr></thead>
+        <tbody id="pl-body"></tbody>
+      </table>
+    </div>
+    <p class="pl-note">Client rows and the grand total use the company-level (WKI) allocation of Indirect Costs, so office rows do not add up to their client for Indirect Costs, Profit and Profit %. When a Country or Office filter is applied, clients fall back to the sum of the selected offices.</p>
   </div>
 
   <p class="status err" id="status" hidden></p>
@@ -132,7 +174,7 @@
     <h2 style="font-size:18px">Data source</h2>
     <p class="note">The Tableau view below feeds everything above. The page reads its data through the Tableau Embedding API and draws the report itself; filters are applied by Tableau.</p>
     <tableau-viz id="viz"
-      src="https://prod-useast-a.online.tableau.com/t/wk/views/TESTEmbeddingAPIData/Data_MonthlyPL"
+      src="https://prod-useast-a.online.tableau.com/t/wk/views/TESTEmbeddingAPIData/SRC_CPD_ClientOfficeMonth"
       width="100%" height="420" toolbar="hidden" hide-tabs iframe-attr-loading="eager">
     </tableau-viz>
   </section>
@@ -157,6 +199,8 @@
   };
 
   let records = new Map();
+  let facts = [];
+  const expanded = new Set();
   let reading = false, rerun = false, timer = null;
 
   const syncEl = document.getElementById("sync");
@@ -199,14 +243,15 @@
   }
   function kind(name) {
     const s = String(name || "");
-    if (/gross\s*profit/i.test(s)) return "gp";
-    if (/revenue/i.test(s)) return "rev";
+    // SRC_CPD_ClientOfficeMonth carries each measure as _USD and _Local; the page is USD-only.
+    if (/^directcontribution_usd$/i.test(s.trim())) return "gp";
+    if (/^revenue_usd$/i.test(s.trim())) return "rev";
     return null;
   }
 
   function parse(table) {
     const cols = table.columns, rows = table.data;
-    if (!rows.length) return new Map();
+    if (!rows.length) { facts = []; return new Map(); }
     const names = cols.map(c => c.fieldName.trim());
     const mn = names.findIndex(n => /^(measure names|nombres de medidas)$/i.test(n));
     const mv = names.findIndex(n => /^(measure values|valores de medidas)$/i.test(n));
@@ -220,25 +265,60 @@
       if (rows.every(r => monthOf(r[i]) !== null)) mi = i;
     });
     if (yi < 0 || mi < 0) throw new Error("Unexpected data shape. Columns: " + names.join(" · "));
+    // The source also carries the WKI root row (Abstract = true); KPIs and chart sum leaf offices only.
+    const ai = names.findIndex(n => /^abstract$/i.test(n));
+    if (ai < 0) throw new Error("No Abstract column found. Columns: " + names.join(" · "));
+    const isLeaf = r => { const v = r[ai].value; return v === false || /^(false|falso)$/i.test(String(v)); };
 
     const out = new Map();
     const rec = (y, m) => { const k = y * 100 + m; if (!out.has(k)) out.set(k, { y, m, rev: null, gp: null }); return out.get(k); };
     const add = (r, k, v) => { if (v !== null) r[k] = (r[k] || 0) + v; };
 
     if (mn >= 0 && mv >= 0) {
-      rows.forEach(r => {
+      rows.filter(isLeaf).forEach(r => {
         const k = kind(r[mn].value) || kind(r[mn].formattedValue);
         if (k) add(rec(toNum(r[yi].value), monthOf(r[mi])), k, toNum(r[mv].value));
       });
     } else {
       const ms = cols.map((c, i) => ({ i, k: kind(c.fieldName) })).filter(x => x.k && x.i !== yi && x.i !== mi);
       if (!ms.length) throw new Error("No Revenue/GrossProfit columns found. Columns: " + names.join(" · "));
-      rows.forEach(r => {
+      rows.filter(isLeaf).forEach(r => {
         const x = rec(toNum(r[yi].value), monthOf(r[mi]));
         ms.forEach(({ i, k }) => add(x, k, toNum(r[i].value)));
       });
     }
+    facts = parseDetail(cols, rows, names, { mn, mv, yi, mi, ai, isLeaf });
     return out;
+  }
+
+  // Detail rows for the P&L table: one fact per year × month × client × office (WKI root flagged).
+  function plKind(name) {
+    const s = String(name || "").trim().toLowerCase();
+    return { revenue_usd: "rev", directlabour_usd: "dl", directoverheads_usd: "dov",
+             directcontribution_usd: "dc", indirectcosts_usd: "ind" }[s] || null;
+  }
+  function parseDetail(cols, rows, names, { mn, mv, yi, mi, ai, isLeaf }) {
+    const ci = names.findIndex(n => /^reportingclient/i.test(n));
+    const oi = names.findIndex(n => /^office\s*name$/i.test(n));
+    if (ci < 0 || oi < 0) throw new Error("No client/office columns found. Columns: " + names.join(" · "));
+    const map = new Map();
+    const fact = r => {
+      const y = toNum(r[yi].value), m = monthOf(r[mi]), client = r[ci].formattedValue, office = r[oi].formattedValue, wki = !isLeaf(r);
+      const k = [y, m, client, office, wki].join("|");
+      if (!map.has(k)) map.set(k, { y, m, client, office, wki, rev: 0, dl: 0, dov: 0, dc: 0, ind: 0 });
+      return map.get(k);
+    };
+    if (mn >= 0 && mv >= 0) {
+      rows.forEach(r => {
+        const k = plKind(r[mn].value) || plKind(r[mn].formattedValue);
+        const v = toNum(r[mv].value);
+        if (k && v !== null) fact(r)[k] += v;
+      });
+    } else {
+      const ms = cols.map((c, i) => ({ i, k: plKind(c.fieldName) })).filter(x => x.k);
+      rows.forEach(r => { const f = fact(r); ms.forEach(({ i, k }) => { const v = toNum(r[i].value); if (v !== null) f[k] += v; }); });
+    }
+    return [...map.values()];
   }
 
   // ---------- reading ----------
@@ -356,10 +436,12 @@
     const cyYear = Number(yearSel.value);
     document.getElementById("empty-state").hidden = !!cyYear;
     if (!cyYear) {
-      for (const id of ["k-rev", "k-dc", "k-cm"]) setKpi(id, "—", "", "", null, "n/a");
+      for (const id of ["k-rev", "k-dc", "k-cm", "k-pr", "k-pp"]) setKpi(id, "—", "", "", null, "n/a");
       document.getElementById("period-label").textContent = "the latest available month";
       document.getElementById("chart-cutoff").textContent = "the latest available month";
       document.getElementById("chart").replaceChildren();
+      document.getElementById("pl-body").replaceChildren();
+      document.getElementById("pl-cutoff").textContent = "the latest available month";
       return;
     }
     const cyMonths = [...records.values()].filter(r => r.y === cyYear && r.rev !== null).map(r => r.m);
@@ -378,9 +460,82 @@
     setKpi("k-dc", fmtMoney(cy ? cy.gp : null), py ? pyYear : "", py ? fmtMoney(py.gp) : "", dGp, dGp === null ? "n/a" : signed(dGp * 100, 1, "%"));
     setKpi("k-cm", fmtPct(cy ? cy.cm : null), py ? pyYear : "", py ? fmtPct(py.cm) : "", dCm, dCm === null ? "n/a" : signed(dCm, 0, " bps"));
 
+    // Profit / Profit %: same WKI-or-leaf rule as the table's Grand Total, so both always agree.
+    const prof = y => { const { list, total } = plClients(y, cutoff); if (!list.length) return null;
+      const p = total.dc - total.ind; return { p, pct: Math.abs(total.rev) < 1 ? null : p / total.rev }; };
+    const cp = prof(cyYear), pp = prof(pyYear);
+    const dP = cp && pp ? pctDelta(cp.p, pp.p) : null;
+    const dPp = cp && pp && cp.pct !== null && pp.pct !== null ? (cp.pct - pp.pct) * 10000 : null;
+    setKpi("k-pr", fmtMoney(cp ? cp.p : null), pp ? pyYear : "", pp ? fmtMoney(pp.p) : "", dP, dP === null ? "n/a" : signed(dP * 100, 1, "%"));
+    setKpi("k-pp", fmtPct(cp ? cp.pct : null), pp ? pyYear : "", pp ? fmtPct(pp.pct) : "", dPp, dPp === null ? "n/a" : signed(dPp, 0, " bps"));
+
     document.getElementById("lg-py").textContent = pyYear;
     document.getElementById("lg-cy").textContent = cyYear;
     drawChart(cyYear, pyYear, cutoff);
+    document.getElementById("pl-cutoff").textContent = cutoffLabel;
+    drawTable(cyYear, cutoff);
+  }
+
+  // ---------- detailed client P&L ----------
+  function fmtUsd(v) {
+    if (v === null || !isFinite(v)) return "—";
+    return (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
+  }
+  function plRow(label) { return { label, rev: 0, dl: 0, dov: 0, dc: 0, ind: 0 }; }
+  function addTo(t, f) { for (const k of ["rev", "dl", "dov", "dc", "ind"]) t[k] += f[k]; }
+
+  function plClients(year, cutoff) {
+    const clients = new Map();
+    for (const f of facts) {
+      if (f.y !== year || f.m > cutoff) continue;
+      if (!clients.has(f.client)) clients.set(f.client, { leaf: plRow(f.client), wki: null, offices: new Map() });
+      const c = clients.get(f.client);
+      if (f.wki) { c.wki = c.wki || plRow("WKI"); addTo(c.wki, f); continue; }
+      addTo(c.leaf, f);
+      if (!c.offices.has(f.office)) c.offices.set(f.office, plRow(f.office));
+      addTo(c.offices.get(f.office), f);
+    }
+    // Client row: additive measures from the offices; Indirect Costs from the WKI root when it is in scope.
+    const list = [...clients.values()].map(c => ({ ...c.leaf, ind: c.wki ? c.wki.ind : c.leaf.ind, offices: [...c.offices.values()] }))
+      .filter(c => c.offices.length)
+      .sort((a, b) => b.rev - a.rev);
+    const total = plRow("Grand Total");
+    list.forEach(c => addTo(total, c));
+    return { list, total };
+  }
+
+  function drawTable(year, cutoff) {
+    const { list, total } = plClients(year, cutoff);
+
+    const cells = r => {
+      const profit = r.dc - r.ind;
+      return [fmtUsd(r.rev), fmtUsd(r.dl), fmtUsd(r.dov), fmtUsd(r.dc), fmtUsd(r.ind), fmtUsd(profit),
+              Math.abs(r.rev) < 1 ? "—" : fmtPct(profit / r.rev)];
+    };
+    const tr = (cls, first, vals) => {
+      const row = document.createElement("tr"); row.className = cls;
+      const td = document.createElement("td");
+      if (typeof first === "string") td.textContent = first; else td.appendChild(first);
+      row.appendChild(td);
+      vals.forEach(v => { const c = document.createElement("td"); c.textContent = v; row.appendChild(c); });
+      return row;
+    };
+    const body = document.getElementById("pl-body");
+    const frag = document.createDocumentFragment();
+    if (list.length) frag.appendChild(tr("total", "Grand Total", cells(total)));
+    list.forEach(c => {
+      const open = expanded.has(c.label);
+      const btn = document.createElement("button");
+      btn.type = "button"; btn.className = "tog"; btn.textContent = c.label;
+      btn.setAttribute("aria-expanded", open);
+      btn.addEventListener("click", () => {
+        expanded.has(c.label) ? expanded.delete(c.label) : expanded.add(c.label);
+        drawTable(year, cutoff);
+      });
+      frag.appendChild(tr("client", btn, cells(c)));
+      if (open) c.offices.sort((a, b) => b.rev - a.rev).forEach(o => frag.appendChild(tr("office", o.label, cells(o))));
+    });
+    body.replaceChildren(frag);
   }
 
   // ---------- chart ----------
@@ -396,10 +551,27 @@
     return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p;
   }
 
+  const tip = document.getElementById("chart-tip");
+  function showTip(title, value, delta, d) {
+    tip.replaceChildren();
+    const t = document.createElement("div"); t.className = "t"; t.textContent = title;
+    const v = document.createElement("div"); v.className = "v"; v.textContent = "Revenue " + value;
+    tip.append(t, v);
+    if (delta) { const x = document.createElement("div"); x.className = "d " + (d >= 0 ? "pos" : "neg"); x.textContent = delta; tip.appendChild(x); }
+    tip.hidden = false;
+  }
+  function moveTip(e) {
+    const box = tip.parentElement.getBoundingClientRect();
+    let x = e.clientX - box.left + 14, yy = e.clientY - box.top - 12;
+    if (x + tip.offsetWidth > box.width - 8) x = e.clientX - box.left - tip.offsetWidth - 14;
+    tip.style.left = x + "px"; tip.style.top = Math.max(0, yy - tip.offsetHeight) + "px";
+  }
+  function hideTip() { tip.hidden = true; }
+
   function drawChart(cyYear, pyYear, cutoff) {
     const svg = document.getElementById("chart");
     svg.replaceChildren();
-    const W = 1200, H = 330, L = 64, R = 8, T = 30, B = 12;
+    const W = 1200, H = 330, L = 64, R = 8, T = 14, B = 30;
     const pw = W - L - R, ph = H - T - B, gw = pw / 12;
     const get = (y, m) => { const r = records.get(y * 100 + m); return r && r.rev !== null ? r.rev : null; };
     const vals = [];
@@ -414,14 +586,19 @@
     }
     for (let m = 1; m <= 12; m++) {
       const gx = L + (m - 1) * gw;
-      if (m > 1) svg.appendChild(el("line", { x1: gx, x2: gx, y1: T - 22, y2: T + ph, stroke: "#DDDDDA", "stroke-width": 1 }));
-      svg.appendChild(el("text", { x: gx + gw / 2, y: T - 12, "text-anchor": "middle", "font-size": 13, "font-weight": 600, fill: "#111111" }, MONTHS[m - 1]));
+      if (m > 1) svg.appendChild(el("line", { x1: gx, x2: gx, y1: T, y2: T + ph, stroke: "#DDDDDA", "stroke-width": 1 }));
+      svg.appendChild(el("text", { x: gx + gw / 2, y: T + ph + 22, "text-anchor": "middle", "font-size": 13, "font-weight": 600, fill: "#111111" }, MONTHS[m - 1]));
       const bw = gw * 0.27;
-      const bars = [[pyYear, get(pyYear, m), gx + gw * 0.17, "#7B7B74"], [cyYear, m <= cutoff ? get(cyYear, m) : null, gx + gw * 0.56, "#111111"]];
-      for (const [yr, v, x, c] of bars) {
+      const pyV = get(pyYear, m), cyV = m <= cutoff ? get(cyYear, m) : null;
+      const bars = [[pyYear, pyV, gx + gw * 0.17, "#7B7B74", null], [cyYear, cyV, gx + gw * 0.56, "#111111", pyV]];
+      for (const [yr, v, x, c, cmp] of bars) {
         if (v === null) continue;
-        const r = el("rect", { x, y: y(v), width: bw, height: Math.max(0, T + ph - y(v)), fill: c });
-        r.appendChild(el("title", {}, MONTHS[m - 1] + " " + yr + ": " + fmtMoney(v)));
+        const r = el("rect", { x, y: y(v), width: bw, height: Math.max(0, T + ph - y(v)), fill: c, class: "bar" });
+        const d = cmp !== null ? pctDelta(v, cmp) : null;
+        r.addEventListener("mouseenter", () => showTip(MONTHS[m - 1] + " " + yr, fmtMoney(v),
+          d === null ? "" : "vs " + pyYear + ": " + signed(d * 100, 1, "%"), d));
+        r.addEventListener("mousemove", moveTip);
+        r.addEventListener("mouseleave", hideTip);
         svg.appendChild(r);
       }
     }
