@@ -12,13 +12,13 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='32' fill='%23080808'/%3E%3Ctext x='50%25' y='54%25' text-anchor='middle' font-size='18' font-family='Arial' font-weight='700' fill='white'%3EW%2BK%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
   <script src="assets/app.js" defer></script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to reports</a>
-  <div class="demo-banner">Demo - fictitious client names - Tableau dashboards require login</div>
+  <div class="demo-banner">Demo - Tableau dashboards require login</div>
 
   <nav class="site-nav" aria-label="Primary navigation">
     <a class="site-nav__brand" href="index.html">
@@ -26,11 +26,8 @@
       <span>Profitability Portal</span>
     </a>
     <div class="site-nav__links" aria-label="Report navigation">
-      <a href="overview.html">Overview</a>
-      <a href="revenue-analysis.html">Revenue</a>
-      <a href="office-profitability.html">Office</a>
-      <a href="gl-account-analysis.html">GL Account</a>
-      <a href="#client-reports">Clients</a>
+      <a href="global-client-portfolio-live.html">Global Client Portfolio</a>
+      <a href="office-profitability-live.html">Office Profitability</a>
     </div>
     <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false">
       <span class="theme-toggle__icon" aria-hidden="true"></span>
@@ -46,7 +43,7 @@
           <h1>Profitability, framed for decisions.</h1>
           <p class="home-hero__copy">An executive finance workspace for reading margin, revenue, and office performance without losing the thread between reports.</p>
           <div class="hero-actions">
-            <a class="button button--solid" href="overview.html">Open overview</a>
+            <a class="button button--solid" href="global-client-portfolio-live.html">Open Global Client Portfolio</a>
             <a class="button" href="#agency-reports">Browse reports</a>
           </div>
         </div>
@@ -82,41 +79,25 @@
         <div class="section__head" data-reveal>
           <div>
             <p class="eyebrow">Agency overview</p>
-            <h2 class="section__title">A single chrome for every internal report.</h2>
+            <h2 class="section__title">Internal reports in one place.</h2>
           </div>
           <p class="section__copy">Agency reports share the same rhythm: a short brief, the current signals, and the governed Tableau view beneath them.</p>
         </div>
 
         <div class="report-grid" data-reveal>
-          <a class="report-tile" href="overview.html">
-            <span class="tile-kicker">01 - Portfolio</span>
+          <a class="report-tile" href="global-client-portfolio-live.html">
+            <span class="tile-kicker">01 - Clients</span>
             <div>
-              <h3 class="tile-title">Portfolio Overview</h3>
-              <p class="tile-copy">High-level metrics across all clients and offices.</p>
+              <h3 class="tile-title">Global Client Portfolio</h3>
+              <p class="tile-copy">Revenue, Direct Contribution and Profit by client, with office detail.</p>
             </div>
             <span class="tile-arrow">Open report</span>
           </a>
-          <a class="report-tile" href="revenue-analysis.html">
-            <span class="tile-kicker">02 - Revenue</span>
-            <div>
-              <h3 class="tile-title">Revenue Analysis</h3>
-              <p class="tile-copy">Revenue and margin trends by client, country, and office.</p>
-            </div>
-            <span class="tile-arrow">Open report</span>
-          </a>
-          <a class="report-tile" href="office-profitability.html">
-            <span class="tile-kicker">03 - Office</span>
+          <a class="report-tile" href="office-profitability-live.html">
+            <span class="tile-kicker">02 - Offices</span>
             <div>
               <h3 class="tile-title">Office Profitability</h3>
-              <p class="tile-copy">Performance patterns across markets and operating teams.</p>
-            </div>
-            <span class="tile-arrow">Open report</span>
-          </a>
-          <a class="report-tile" href="gl-account-analysis.html">
-            <span class="tile-kicker">04 - GL</span>
-            <div>
-              <h3 class="tile-title">GL Account Analysis</h3>
-              <p class="tile-copy">General ledger breakdown across accounts and countries.</p>
+              <p class="tile-copy">KPIs, rankings across offices and client contribution for one office.</p>
             </div>
             <span class="tile-arrow">Open report</span>
           </a>
@@ -124,79 +105,11 @@
       </div>
     </section>
 
-    <section class="section" id="client-reports">
-      <div class="container">
-        <div class="section__head" data-reveal>
-          <div>
-            <p class="eyebrow">Client reports</p>
-            <h2 class="section__title">Fictitious brands, real page pattern.</h2>
-          </div>
-          <p class="section__copy">Six account frames preserve the same decision hierarchy while letting one client signal lead the page.</p>
-        </div>
-
-        <div class="client-grid" data-reveal>
-          <a class="client-tile" href="aurora-brewing.html" style="--accent:#D4AF37;--accent-rgb:212,175,55">
-            <span class="client-tile__rule" aria-hidden="true"></span>
-            <div>
-              <span class="tile-kicker">Beverages</span>
-              <h3 class="tile-title">Aurora Brewing</h3>
-              <p class="tile-copy">Profitability report</p>
-            </div>
-            <span class="tile-arrow">Open client</span>
-          </a>
-          <a class="client-tile" href="helix-pharma.html" style="--accent:#D52B1E;--accent-rgb:213,43,30">
-            <span class="client-tile__rule" aria-hidden="true"></span>
-            <div>
-              <span class="tile-kicker">Pharmaceuticals</span>
-              <h3 class="tile-title">Helix Pharma</h3>
-              <p class="tile-copy">Profitability report</p>
-            </div>
-            <span class="tile-arrow">Open client</span>
-          </a>
-          <a class="client-tile" href="vantage-motors.html" style="--accent:#0066CC;--accent-rgb:0,102,204">
-            <span class="client-tile__rule" aria-hidden="true"></span>
-            <div>
-              <span class="tile-kicker">Automotive</span>
-              <h3 class="tile-title">Vantage Motors</h3>
-              <p class="tile-copy">Profitability report</p>
-            </div>
-            <span class="tile-arrow">Open client</span>
-          </a>
-          <a class="client-tile" href="heartland-foods.html" style="--accent:#C8102E;--accent-rgb:200,16,46">
-            <span class="client-tile__rule" aria-hidden="true"></span>
-            <div>
-              <span class="tile-kicker">Food / CPG</span>
-              <h3 class="tile-title">Heartland Foods</h3>
-              <p class="tile-copy">Profitability report</p>
-            </div>
-            <span class="tile-arrow">Open client</span>
-          </a>
-          <a class="client-tile" href="brightway.html" style="--accent:#FFC72C;--accent-rgb:255,199,44">
-            <span class="client-tile__rule" aria-hidden="true"></span>
-            <div>
-              <span class="tile-kicker">Quick-service restaurants</span>
-              <h3 class="tile-title">Brightway</h3>
-              <p class="tile-copy">Profitability report</p>
-            </div>
-            <span class="tile-arrow">Open client</span>
-          </a>
-          <a class="client-tile" href="voltic-athletics.html" style="--accent:#C5F015;--accent-rgb:197,240,21">
-            <span class="client-tile__rule" aria-hidden="true"></span>
-            <div>
-              <span class="tile-kicker">Sportswear</span>
-              <h3 class="tile-title">Voltic Athletics</h3>
-              <p class="tile-copy">Profitability report</p>
-            </div>
-            <span class="tile-arrow">Open client</span>
-          </a>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="footer">
     <div class="container footer__inner">
-      <span>Wieden+Kennedy finance demo</span>
+      <span>Wieden+Kennedy Finance</span>
       <span>Internal reporting portal</span>
     </div>
   </footer>
