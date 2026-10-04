@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex, nofollow">
 <title>Global Client Portfolio Live</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script type="module" src="https://prod-useast-a.online.tableau.com/javascripts/api/tableau.embedding.3.latest.min.js"></script>
 <style>
   :root {
@@ -17,11 +17,15 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Archivo", system-ui, sans-serif; font-size: 14px; line-height: 1.45; }
-  .pnav { background: #0A0A0A; border-bottom: 1px solid #2A2A2A; display: flex; align-items: center; gap: 28px; padding: 0 24px; height: 40px; font-size: 13px; }
-  .pnav a { color: #A6A6A0; text-decoration: none; height: 100%; display: flex; align-items: center; border-bottom: 2px solid transparent; }
-  .pnav a:hover { color: #fff; }
-  .pnav a.home { color: #fff; font-weight: 700; letter-spacing: .02em; margin-right: 12px; }
-  .pnav a.active { color: #fff; border-bottom-color: #fff; }
+  .pnav { background: #0A0A0A; border-bottom: 1px solid #2A2A2A; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 12px 24px; }
+  .pnav__brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; white-space: nowrap; }
+  .pnav__mark { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #F8F8F2; color: #0A0A0A; font-size: 10px; letter-spacing: 0; }
+  .pnav__links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pnav__links a { font-family: "IBM Plex Mono", Consolas, monospace; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: #E7E8E6; text-decoration: none; padding: 8px 16px; border: 1px solid #55554F; border-radius: 999px; transition: background .15s, border-color .15s; }
+  .pnav__links a:hover { background: #2A2A2A; border-color: #A6A6A0; }
+  .pnav__links a[aria-current="page"] { background: #F8F8F2; border-color: #F8F8F2; color: #0A0A0A; font-weight: 600; }
+  .pnav__links a:focus-visible, .pnav__brand:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  @media (max-width: 640px) { .pnav { padding: 10px 16px; } .pnav__brand span:last-child { display: none; } }
   .pnav + .shell { padding-top: 16px; }
   .shell { background: #0A0A0A; color: #fff; padding: 20px 24px 18px; }
   .shell .brand-label { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #B7B7B2; }
@@ -122,9 +126,12 @@
 </head>
 <body class="is-loading">
 <nav class="pnav" aria-label="Portal">
-  <a class="home" href="index.html">&larr; W+K Profitability Portal</a>
-  <a href="global-client-portfolio-live.html" class="active" aria-current="page">Global Client Portfolio</a>
-  <a href="office-profitability-live.html">Office Profitability</a>
+  <a class="pnav__brand" href="index.html"><span class="pnav__mark">W+K</span><span>Profitability Portal</span></a>
+  <div class="pnav__links">
+    <a href="index.html">Home</a>
+    <a href="global-client-portfolio-live.html" aria-current="page">Global Client Portfolio</a>
+    <a href="office-profitability-live.html">Office Profitability</a>
+  </div>
 </nav>
 <div class="shell">
   <div class="brand-label">Wieden+Kennedy</div>

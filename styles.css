@@ -166,17 +166,25 @@ button {
 }
 
 .site-nav__links a {
-  color: var(--ink-subtle);
+  padding: 8px 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--ink);
   font-family: var(--font-mono);
-  font-size: 0.71rem;
+  font-size: 0.75rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-  transition: color 160ms var(--ease);
+  transition: background 160ms var(--ease), border-color 160ms var(--ease), color 160ms var(--ease);
 }
 
-.site-nav__links a:hover,
+.site-nav__links a:hover {
+  border-color: var(--ink);
+}
+
 .site-nav__links a[aria-current="page"] {
-  color: var(--ink);
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--bg);
 }
 
 .theme-toggle {
